@@ -126,6 +126,60 @@
       line-height: 1.4;
     }
 
+    .access-code-group {
+      max-width: 280px;
+      margin: 0 auto 24px;
+    }
+
+    .access-code-group label {
+      display: block;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-secondary);
+      margin-bottom: 6px;
+    }
+
+    .access-code-input {
+      width: 100%;
+      padding: 12px 16px;
+      border: 1px solid var(--border);
+      border-radius: 50px;
+      font-size: 16px;
+      font-family: inherit;
+      text-align: center;
+      letter-spacing: 3px;
+      color: var(--text);
+      background: var(--surface);
+      outline: none;
+      transition: border-color var(--transition);
+    }
+
+    .access-code-input:focus {
+      border-color: var(--primary);
+    }
+
+    .access-code-input.error {
+      border-color: var(--error);
+      animation: codeShake 0.4s ease;
+    }
+
+    .access-code-error {
+      font-size: 13px;
+      color: var(--error);
+      margin-top: 6px;
+      display: none;
+    }
+
+    .access-code-error.visible {
+      display: block;
+    }
+
+    @keyframes codeShake {
+      0%, 100% { transform: translateX(0); }
+      20%, 60% { transform: translateX(-6px); }
+      40%, 80% { transform: translateX(6px); }
+    }
+
     .btn-start {
       display: inline-flex;
       align-items: center;
@@ -662,6 +716,12 @@
         </div>
       </div>
 
+      <div class="access-code-group" id="accessCodeGroup">
+        <label for="accessCode">Access code</label>
+        <input type="text" class="access-code-input" id="accessCode" placeholder="Enter code" autocomplete="off" spellcheck="false">
+        <p class="access-code-error" id="accessCodeError">Invalid access code. Check your invite email or contact Zanda.</p>
+      </div>
+
       <button class="btn-start" id="startBtn">
         Let's go
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
@@ -786,6 +846,7 @@
       webhookUrl: '',
       mode: 'intake',
       module: '',
+      accessCode: '',
       messages: [],
       isSending: false,
       turnCount: 0,
@@ -821,6 +882,9 @@
       typingDots: $('typingDots'),
       userInput: $('userInput'),
       sendBtn: $('sendBtn'),
+      accessCode: $('accessCode'),
+      accessCodeGroup: $('accessCodeGroup'),
+      accessCodeError: $('accessCodeError'),
       startBtn: $('startBtn'),
       restartBtn: $('restartBtn'),
       trackIcon: $('trackIcon'),
@@ -840,6 +904,7 @@
         mode: p.get('mode'),
         module: p.get('module'),
         webhook: p.get('webhook'),
+        code: p.get('code'),
         admin: p.get('admin') === 'true',
         demo: p.get('demo') === 'true',
       };
@@ -862,6 +927,18 @@
       state.webhookUrl = params.webhook || saved.webhookUrl || '';
       if (params.demo) state.webhookUrl = 'demo';
       dom.webhookInput.value = state.webhookUrl;
+
+      // Set access code from URL param (pre-fill and hide the field)
+      if (params.code) {
+        state.accessCode = params.code;
+        dom.accessCode.value = params.code;
+        dom.accessCodeGroup.style.display = 'none';
+      }
+
+      // Demo mode skips access code
+      if (params.demo || state.webhookUrl === 'demo') {
+        dom.accessCodeGroup.style.display = 'none';
+      }
 
       // Show admin panel if requested
       if (params.admin) dom.adminPanel.classList.add('visible');
@@ -1079,6 +1156,7 @@
       const payload = {
         mode: state.mode,
         module: state.module || null,
+        access_code: state.accessCode || null,
         messages: messages.filter(m => m.role === 'user' || m.role === 'assistant'),
         timestamp: new Date().toISOString(),
       };
@@ -1089,6 +1167,20 @@
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
       });
+
+      // Handle access code rejection from n8n
+      if (response.status === 403) {
+        // Return to welcome screen with error
+        state.accessCode = '';
+        showScreen('welcomeScreen');
+        dom.accessCodeGroup.style.display = '';
+        dom.accessCode.value = '';
+        dom.accessCode.classList.add('error');
+        dom.accessCodeError.textContent = 'Invalid access code. Check your invite email or contact Zanda.';
+        dom.accessCodeError.classList.add('visible');
+        setTimeout(() => dom.accessCode.classList.remove('error'), 400);
+        throw new Error('ACCESS_CODE_REJECTED');
+      }
 
       if (!response.ok) {
         throw new Error(`Server returned ${response.status}`);
@@ -1118,6 +1210,7 @@
         addMessage('assistant', reply);
       } catch (err) {
         showTyping(false);
+        if (err.message === 'ACCESS_CODE_REJECTED') return;
         addMessage('error', `Connection issue: ${err.message}. Please try again.`);
       } finally {
         state.isSending = false;
@@ -1127,14 +1220,34 @@
 
     // ---- Start Conversation ----
     async function startConversation() {
+      // Validate access code (skip for demo mode)
+      const isDemo = state.webhookUrl === 'demo';
+      const codeFromInput = dom.accessCode.value.trim();
+      const codeFromParam = getParams().code;
+
+      if (!isDemo && !codeFromParam) {
+        // Code must come from the input field
+        if (!codeFromInput) {
+          dom.accessCode.classList.add('error');
+          dom.accessCodeError.textContent = 'Please enter your access code.';
+          dom.accessCodeError.classList.add('visible');
+          dom.accessCode.focus();
+          setTimeout(() => dom.accessCode.classList.remove('error'), 400);
+          return;
+        }
+        state.accessCode = codeFromInput;
+      }
+
+      // Clear any previous error state
+      dom.accessCode.classList.remove('error');
+      dom.accessCodeError.classList.remove('visible');
+
       // Check webhook
       if (!state.webhookUrl) {
-        // Try localStorage
         const saved = JSON.parse(localStorage.getItem('skool-config') || '{}');
         state.webhookUrl = saved.webhookUrl || '';
       }
       if (!state.webhookUrl) {
-        // Show admin panel for config
         showScreen('chatScreen');
         dom.adminPanel.classList.add('visible');
         addMessage('system', 'Please configure the webhook URL in the admin panel above.');
@@ -1166,6 +1279,7 @@
         setInputEnabled(true);
       } catch (err) {
         showTyping(false);
+        if (err.message === 'ACCESS_CODE_REJECTED') return; // Already handled — back on welcome screen
         dom.chatStatus.textContent = 'Connection failed';
         dom.chatStatus.className = 'chat-status';
         addMessage('error', `Could not connect: ${err.message}`);
