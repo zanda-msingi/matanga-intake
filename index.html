@@ -1,0 +1,1269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SKOOL by MATANGA — Smart Intake</title>
+  <meta name="description" content="AI productivity training for professionals. Tell us about yourself so we can recommend the right learning path.">
+  <style>
+    :root {
+      --bg: #fafafa;
+      --surface: #ffffff;
+      --surface-alt: #f5f5f5;
+      --border: #e5e5e5;
+      --border-light: #f0f0f0;
+      --text: #1a1a1a;
+      --text-secondary: #666;
+      --text-muted: #999;
+      --primary: #1a3a5c;
+      --primary-light: #2a5a8c;
+      --accent: #d4843e;
+      --accent-light: #e8a96a;
+      --accent-bg: rgba(212, 132, 62, 0.08);
+      --user-bg: #1a3a5c;
+      --user-text: #ffffff;
+      --assistant-bg: #ffffff;
+      --success: #2e7d32;
+      --success-bg: rgba(46, 125, 50, 0.08);
+      --error: #c62828;
+      --error-bg: rgba(198, 40, 40, 0.06);
+      --shadow-sm: 0 1px 3px rgba(0,0,0,0.06);
+      --shadow-md: 0 4px 12px rgba(0,0,0,0.08);
+      --shadow-lg: 0 8px 30px rgba(0,0,0,0.12);
+      --radius: 12px;
+      --radius-sm: 8px;
+      --radius-lg: 20px;
+      --transition: 0.2s ease;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      height: 100dvh;
+      overflow: hidden;
+    }
+
+    /* ===== Screens ===== */
+    .screen { display: none; height: 100dvh; flex-direction: column; }
+    .screen.active { display: flex; }
+
+    /* ===== Welcome Screen ===== */
+    #welcomeScreen {
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      background: linear-gradient(160deg, #fafafa 0%, #f0f4f8 50%, #faf6f0 100%);
+    }
+
+    .welcome-card {
+      max-width: 520px;
+      width: 100%;
+      text-align: center;
+    }
+
+    .welcome-logo {
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--primary);
+      margin-bottom: 32px;
+    }
+
+    .welcome-logo span {
+      color: var(--accent);
+    }
+
+    .welcome-card h1 {
+      font-size: 32px;
+      font-weight: 700;
+      line-height: 1.2;
+      color: var(--text);
+      margin-bottom: 16px;
+      letter-spacing: -0.5px;
+    }
+
+    .welcome-card .subtitle {
+      font-size: 17px;
+      line-height: 1.6;
+      color: var(--text-secondary);
+      margin-bottom: 40px;
+    }
+
+    .welcome-features {
+      display: flex;
+      gap: 24px;
+      margin-bottom: 40px;
+      text-align: left;
+    }
+
+    .welcome-feature {
+      flex: 1;
+      padding: 16px;
+      background: var(--surface);
+      border-radius: var(--radius);
+      border: 1px solid var(--border-light);
+    }
+
+    .welcome-feature .feat-icon {
+      font-size: 24px;
+      margin-bottom: 8px;
+    }
+
+    .welcome-feature h3 {
+      font-size: 14px;
+      font-weight: 600;
+      margin-bottom: 4px;
+      color: var(--text);
+    }
+
+    .welcome-feature p {
+      font-size: 13px;
+      color: var(--text-muted);
+      line-height: 1.4;
+    }
+
+    .btn-start {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 14px 36px;
+      background: var(--primary);
+      color: white;
+      border: none;
+      border-radius: 50px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all var(--transition);
+      box-shadow: var(--shadow-md);
+    }
+
+    .btn-start:hover {
+      background: var(--primary-light);
+      box-shadow: var(--shadow-lg);
+      transform: translateY(-1px);
+    }
+
+    .btn-start svg {
+      width: 18px;
+      height: 18px;
+      transition: transform var(--transition);
+    }
+
+    .btn-start:hover svg { transform: translateX(3px); }
+
+    .welcome-note {
+      margin-top: 20px;
+      font-size: 13px;
+      color: var(--text-muted);
+    }
+
+    /* ===== Chat Screen ===== */
+    #chatScreen { background: var(--bg); }
+
+    .chat-header {
+      padding: 14px 20px;
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-shrink: 0;
+    }
+
+    .chat-header-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .chat-avatar {
+      width: 36px;
+      height: 36px;
+      background: var(--primary);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 14px;
+      font-weight: 700;
+    }
+
+    .chat-header-info h2 {
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    .chat-header-info .chat-status {
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    .chat-header-info .chat-status.typing { color: var(--accent); }
+
+    .progress-bar {
+      height: 3px;
+      background: var(--border-light);
+      flex-shrink: 0;
+    }
+
+    .progress-bar-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--primary), var(--accent));
+      border-radius: 0 2px 2px 0;
+      transition: width 0.5s ease;
+      width: 0%;
+    }
+
+    /* Chat Messages */
+    .chat-messages {
+      flex: 1;
+      overflow-y: auto;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      scroll-behavior: smooth;
+    }
+
+    .msg-group {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      max-width: 85%;
+      animation: fadeUp 0.3s ease;
+    }
+
+    .msg-group.user { align-self: flex-end; }
+    .msg-group.assistant { align-self: flex-start; }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .msg-label {
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--text-muted);
+      padding: 0 4px;
+      margin-bottom: 2px;
+    }
+
+    .msg-bubble {
+      padding: 12px 16px;
+      line-height: 1.6;
+      font-size: 15px;
+      white-space: pre-wrap;
+      word-wrap: break-word;
+    }
+
+    .msg-group.user .msg-bubble {
+      background: var(--user-bg);
+      color: var(--user-text);
+      border-radius: var(--radius) var(--radius) 4px var(--radius);
+    }
+
+    .msg-group.assistant .msg-bubble {
+      background: var(--assistant-bg);
+      color: var(--text);
+      border: 1px solid var(--border);
+      border-radius: var(--radius) var(--radius) var(--radius) 4px;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .msg-system {
+      align-self: center;
+      font-size: 13px;
+      color: var(--text-muted);
+      padding: 8px 16px;
+      background: var(--surface-alt);
+      border-radius: 20px;
+      animation: fadeUp 0.3s ease;
+    }
+
+    .msg-error {
+      align-self: center;
+      font-size: 13px;
+      color: var(--error);
+      padding: 10px 16px;
+      background: var(--error-bg);
+      border: 1px solid rgba(198, 40, 40, 0.15);
+      border-radius: var(--radius-sm);
+      animation: fadeUp 0.3s ease;
+    }
+
+    /* Typing indicator */
+    .typing-dots {
+      display: inline-flex;
+      gap: 4px;
+      align-items: center;
+      padding: 14px 18px;
+      background: var(--assistant-bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius) var(--radius) var(--radius) 4px;
+      box-shadow: var(--shadow-sm);
+      align-self: flex-start;
+    }
+
+    .typing-dots.hidden { display: none; }
+
+    .typing-dots span {
+      width: 7px;
+      height: 7px;
+      background: var(--text-muted);
+      border-radius: 50%;
+      animation: dotPulse 1.4s infinite ease-in-out;
+    }
+    .typing-dots span:nth-child(2) { animation-delay: 0.15s; }
+    .typing-dots span:nth-child(3) { animation-delay: 0.3s; }
+
+    @keyframes dotPulse {
+      0%, 80%, 100% { transform: scale(0.6); opacity: 0.4; }
+      40% { transform: scale(1); opacity: 1; }
+    }
+
+    /* Chat Input */
+    .chat-input-area {
+      padding: 12px 20px 16px;
+      background: var(--surface);
+      border-top: 1px solid var(--border);
+      flex-shrink: 0;
+    }
+
+    .chat-input-row {
+      display: flex;
+      gap: 8px;
+      max-width: 680px;
+      margin: 0 auto;
+      align-items: flex-end;
+    }
+
+    .chat-input-row textarea {
+      flex: 1;
+      padding: 12px 16px;
+      background: var(--surface-alt);
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      color: var(--text);
+      font-size: 15px;
+      font-family: inherit;
+      resize: none;
+      outline: none;
+      min-height: 46px;
+      max-height: 120px;
+      line-height: 1.4;
+      transition: border-color var(--transition);
+    }
+
+    .chat-input-row textarea:focus { border-color: var(--primary); }
+    .chat-input-row textarea::placeholder { color: var(--text-muted); }
+
+    .chat-input-row textarea:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    .btn-send {
+      width: 46px;
+      height: 46px;
+      border-radius: 50%;
+      background: var(--primary);
+      border: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all var(--transition);
+      flex-shrink: 0;
+    }
+
+    .btn-send:hover { background: var(--primary-light); }
+    .btn-send:disabled { opacity: 0.3; cursor: not-allowed; }
+
+    .btn-send svg {
+      width: 18px;
+      height: 18px;
+      fill: white;
+    }
+
+    /* ===== Results Screen ===== */
+    #resultsScreen {
+      align-items: center;
+      justify-content: flex-start;
+      padding: 32px 24px;
+      overflow-y: auto;
+      background: linear-gradient(160deg, #fafafa 0%, #f0f4f8 50%, #faf6f0 100%);
+    }
+
+    .results-container {
+      max-width: 560px;
+      width: 100%;
+    }
+
+    .results-header {
+      text-align: center;
+      margin-bottom: 32px;
+    }
+
+    .results-header .check-icon {
+      width: 56px;
+      height: 56px;
+      background: var(--success-bg);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 16px;
+    }
+
+    .results-header .check-icon svg {
+      width: 28px;
+      height: 28px;
+      fill: var(--success);
+    }
+
+    .results-header h2 {
+      font-size: 24px;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+
+    .results-header p {
+      font-size: 15px;
+      color: var(--text-secondary);
+    }
+
+    .results-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 24px;
+      margin-bottom: 16px;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .results-card h3 {
+      font-size: 13px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--text-muted);
+      margin-bottom: 12px;
+    }
+
+    .result-track {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding: 16px;
+      background: var(--accent-bg);
+      border-radius: var(--radius);
+      border: 1px solid rgba(212, 132, 62, 0.15);
+    }
+
+    .result-track-icon {
+      width: 48px;
+      height: 48px;
+      background: var(--accent);
+      border-radius: var(--radius-sm);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 20px;
+      font-weight: 700;
+      flex-shrink: 0;
+    }
+
+    .result-track-info h4 {
+      font-size: 17px;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 2px;
+    }
+
+    .result-track-info p {
+      font-size: 13px;
+      color: var(--text-secondary);
+      line-height: 1.4;
+    }
+
+    .result-items {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .result-item {
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+    }
+
+    .result-item-dot {
+      width: 6px;
+      height: 6px;
+      background: var(--accent);
+      border-radius: 50%;
+      margin-top: 7px;
+      flex-shrink: 0;
+    }
+
+    .result-item p {
+      font-size: 15px;
+      line-height: 1.5;
+      color: var(--text);
+    }
+
+    .result-item .label {
+      font-weight: 600;
+      color: var(--text-secondary);
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      display: block;
+      margin-bottom: 2px;
+    }
+
+    .results-footer {
+      text-align: center;
+      margin-top: 24px;
+    }
+
+    .btn-restart {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 10px 24px;
+      background: transparent;
+      border: 1px solid var(--border);
+      border-radius: 50px;
+      font-size: 14px;
+      color: var(--text-secondary);
+      cursor: pointer;
+      transition: all var(--transition);
+    }
+
+    .btn-restart:hover {
+      border-color: var(--primary);
+      color: var(--primary);
+    }
+
+    /* ===== Admin Panel ===== */
+    .admin-panel {
+      display: none;
+      padding: 16px 20px;
+      background: #fffbf0;
+      border-bottom: 1px solid #f0e0c0;
+      flex-shrink: 0;
+    }
+
+    .admin-panel.visible { display: block; }
+
+    .admin-panel h3 {
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--accent);
+      margin-bottom: 10px;
+    }
+
+    .admin-row {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      align-items: flex-end;
+    }
+
+    .admin-field {
+      flex: 1;
+      min-width: 200px;
+    }
+
+    .admin-field label {
+      display: block;
+      font-size: 12px;
+      color: var(--text-secondary);
+      margin-bottom: 4px;
+    }
+
+    .admin-field input, .admin-field select {
+      width: 100%;
+      padding: 8px 12px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      font-size: 14px;
+      color: var(--text);
+      background: white;
+      outline: none;
+    }
+
+    .admin-field input:focus, .admin-field select:focus {
+      border-color: var(--primary);
+    }
+
+    .btn-admin {
+      padding: 8px 16px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      background: white;
+      font-size: 13px;
+      cursor: pointer;
+      color: var(--text);
+      transition: all var(--transition);
+    }
+
+    .btn-admin:hover { border-color: var(--primary); color: var(--primary); }
+
+    /* ===== Responsive ===== */
+    @media (max-width: 600px) {
+      .welcome-card h1 { font-size: 26px; }
+      .welcome-features { flex-direction: column; gap: 12px; }
+      .msg-group { max-width: 92%; }
+      .chat-messages { padding: 16px; }
+      .results-container { padding: 0; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ===== WELCOME SCREEN ===== -->
+  <div class="screen active" id="welcomeScreen">
+    <div class="welcome-card">
+      <div class="welcome-logo">SKOOL by <span>MATANGA</span></div>
+      <h1 id="welcomeTitle">Tell us about yourself.</h1>
+      <p class="subtitle" id="welcomeSubtitle">A 5-minute conversation to understand your work, your goals, and your experience with AI — so we can recommend exactly the right learning path for you.</p>
+
+      <div class="welcome-features">
+        <div class="welcome-feature">
+          <div class="feat-icon" id="feat1Icon">&#9749;</div>
+          <h3 id="feat1Title">Conversational</h3>
+          <p id="feat1Desc">No forms. Just a friendly chat that adapts to your answers.</p>
+        </div>
+        <div class="welcome-feature">
+          <div class="feat-icon" id="feat2Icon">&#127919;</div>
+          <h3 id="feat2Title">Personalized</h3>
+          <p id="feat2Desc">Get a track recommendation based on your actual needs.</p>
+        </div>
+        <div class="welcome-feature">
+          <div class="feat-icon" id="feat3Icon">&#9201;</div>
+          <h3 id="feat3Title">5 Minutes</h3>
+          <p id="feat3Desc">Quick, focused, and respectful of your time.</p>
+        </div>
+      </div>
+
+      <button class="btn-start" id="startBtn">
+        Let's go
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+      </button>
+      <p class="welcome-note">Powered by MATANGA Research</p>
+    </div>
+  </div>
+
+  <!-- ===== CHAT SCREEN ===== -->
+  <div class="screen" id="chatScreen">
+    <div class="admin-panel" id="adminPanel">
+      <h3>Admin Settings</h3>
+      <div class="admin-row">
+        <div class="admin-field">
+          <label>n8n Webhook URL</label>
+          <input type="url" id="webhookInput" placeholder="https://your-n8n.example.com/webhook/skool-intake">
+        </div>
+        <div class="admin-field" style="max-width: 160px;">
+          <label>Mode</label>
+          <select id="modeSelect">
+            <option value="intake">Intake</option>
+            <option value="survey">Survey</option>
+          </select>
+        </div>
+        <div class="admin-field" style="max-width: 180px;">
+          <label>Module (survey)</label>
+          <select id="moduleSelect">
+            <option value="">Select module</option>
+            <option value="NotebookLM">NotebookLM</option>
+            <option value="GPT Builder">GPT Builder</option>
+            <option value="Claude Deep Work">Claude Deep Work</option>
+            <option value="Perplexity Research">Perplexity Research</option>
+            <option value="Copilot Excel">Copilot + Excel</option>
+          </select>
+        </div>
+        <button class="btn-admin" id="saveAdminBtn">Save</button>
+      </div>
+    </div>
+
+    <div class="chat-header">
+      <div class="chat-header-left">
+        <div class="chat-avatar">S</div>
+        <div class="chat-header-info">
+          <h2>SKOOL Advisor</h2>
+          <div class="chat-status" id="chatStatus">Online</div>
+        </div>
+      </div>
+    </div>
+    <div class="progress-bar"><div class="progress-bar-fill" id="progressFill"></div></div>
+
+    <div class="chat-messages" id="chatMessages">
+      <!-- Messages injected here -->
+    </div>
+
+    <div class="typing-dots hidden" id="typingDots">
+      <span></span><span></span><span></span>
+    </div>
+
+    <div class="chat-input-area">
+      <div class="chat-input-row">
+        <textarea id="userInput" placeholder="Type your response..." rows="1" disabled></textarea>
+        <button class="btn-send" id="sendBtn" disabled aria-label="Send">
+          <svg viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== RESULTS SCREEN ===== -->
+  <div class="screen" id="resultsScreen">
+    <div class="results-container">
+      <div class="results-header">
+        <div class="check-icon">
+          <svg viewBox="0 0 24 24"><path d="M9 16.2L4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4L9 16.2z"/></svg>
+        </div>
+        <h2 id="resultsTitle">Thanks for sharing!</h2>
+        <p id="resultsSubtitle">Here's what we learned and our recommendation.</p>
+      </div>
+
+      <div class="results-card" id="trackCard">
+        <h3>Recommended Track</h3>
+        <div class="result-track">
+          <div class="result-track-icon" id="trackIcon">F</div>
+          <div class="result-track-info">
+            <h4 id="trackName">Foundations</h4>
+            <p id="trackReason">Based on your experience level and goals</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="results-card" id="profileCard">
+        <h3>Your Profile</h3>
+        <div class="result-items" id="profileItems">
+          <!-- Populated dynamically -->
+        </div>
+      </div>
+
+      <div class="results-card" id="nextStepsCard">
+        <h3>Next Steps</h3>
+        <div class="result-items" id="nextStepsItems">
+          <!-- Populated dynamically -->
+        </div>
+      </div>
+
+      <div class="results-footer">
+        <button class="btn-restart" id="restartBtn">Start over</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ==================================================
+    // SKOOL Smart Intake — Production Build
+    // ==================================================
+    // Architecture: stateless backend. Browser holds all conversation state.
+    // Each request sends full message history to n8n webhook.
+    // Supports: intake mode, survey mode, demo mode.
+    // Config via URL params or admin panel.
+
+    // ---- State ----
+    const state = {
+      webhookUrl: '',
+      mode: 'intake',
+      module: '',
+      messages: [],
+      isSending: false,
+      turnCount: 0,
+      summaryData: null,
+    };
+
+    // ---- DOM ----
+    const $ = id => document.getElementById(id);
+
+    const dom = {
+      welcomeScreen: $('welcomeScreen'),
+      chatScreen: $('chatScreen'),
+      resultsScreen: $('resultsScreen'),
+      welcomeTitle: $('welcomeTitle'),
+      welcomeSubtitle: $('welcomeSubtitle'),
+      feat1Icon: $('feat1Icon'),
+      feat1Title: $('feat1Title'),
+      feat1Desc: $('feat1Desc'),
+      feat2Icon: $('feat2Icon'),
+      feat2Title: $('feat2Title'),
+      feat2Desc: $('feat2Desc'),
+      feat3Icon: $('feat3Icon'),
+      feat3Title: $('feat3Title'),
+      feat3Desc: $('feat3Desc'),
+      adminPanel: $('adminPanel'),
+      webhookInput: $('webhookInput'),
+      modeSelect: $('modeSelect'),
+      moduleSelect: $('moduleSelect'),
+      saveAdminBtn: $('saveAdminBtn'),
+      chatMessages: $('chatMessages'),
+      chatStatus: $('chatStatus'),
+      progressFill: $('progressFill'),
+      typingDots: $('typingDots'),
+      userInput: $('userInput'),
+      sendBtn: $('sendBtn'),
+      startBtn: $('startBtn'),
+      restartBtn: $('restartBtn'),
+      trackIcon: $('trackIcon'),
+      trackName: $('trackName'),
+      trackReason: $('trackReason'),
+      profileItems: $('profileItems'),
+      nextStepsItems: $('nextStepsItems'),
+      resultsTitle: $('resultsTitle'),
+      resultsSubtitle: $('resultsSubtitle'),
+      trackCard: $('trackCard'),
+    };
+
+    // ---- URL Params ----
+    function getParams() {
+      const p = new URLSearchParams(window.location.search);
+      return {
+        mode: p.get('mode'),
+        module: p.get('module'),
+        webhook: p.get('webhook'),
+        admin: p.get('admin') === 'true',
+        demo: p.get('demo') === 'true',
+      };
+    }
+
+    // ---- Init ----
+    function init() {
+      const params = getParams();
+      const saved = JSON.parse(localStorage.getItem('skool-config') || '{}');
+
+      // Set mode
+      state.mode = params.mode || saved.mode || 'intake';
+      dom.modeSelect.value = state.mode;
+
+      // Set module
+      state.module = params.module || saved.module || '';
+      if (state.module) dom.moduleSelect.value = state.module;
+
+      // Set webhook
+      state.webhookUrl = params.webhook || saved.webhookUrl || '';
+      if (params.demo) state.webhookUrl = 'demo';
+      dom.webhookInput.value = state.webhookUrl;
+
+      // Show admin panel if requested
+      if (params.admin) dom.adminPanel.classList.add('visible');
+
+      // Customize welcome screen for survey mode
+      if (state.mode === 'survey') {
+        dom.welcomeTitle.textContent = "How was your session?";
+        dom.welcomeSubtitle.textContent = "A quick reflection to capture what you learned, what clicked, and what you want to tackle next. Takes about 5 minutes.";
+        dom.feat1Icon.innerHTML = '&#128173;';
+        dom.feat1Title.textContent = 'Reflect';
+        dom.feat1Desc.textContent = 'Think about what stuck and what you tried.';
+        dom.feat2Icon.innerHTML = '&#128200;';
+        dom.feat2Title.textContent = 'Measure';
+        dom.feat2Desc.textContent = 'Track your confidence and time saved.';
+        dom.feat3Icon.innerHTML = '&#127793;';
+        dom.feat3Title.textContent = 'Grow';
+        dom.feat3Desc.textContent = 'Identify what to tackle next.';
+      }
+    }
+
+    init();
+
+    // ---- Screen Navigation ----
+    function showScreen(id) {
+      document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+      $(id).classList.add('active');
+    }
+
+    // ---- Admin ----
+    dom.saveAdminBtn.addEventListener('click', () => {
+      state.webhookUrl = dom.webhookInput.value.trim();
+      state.mode = dom.modeSelect.value;
+      state.module = dom.moduleSelect.value;
+      localStorage.setItem('skool-config', JSON.stringify({
+        webhookUrl: state.webhookUrl,
+        mode: state.mode,
+        module: state.module,
+      }));
+      dom.adminPanel.classList.remove('visible');
+    });
+
+    // ---- Messages ----
+    function addMessage(role, content) {
+      if (role === 'user' || role === 'assistant') {
+        state.messages.push({ role, content });
+        state.turnCount = state.messages.filter(m => m.role === 'user').length;
+      }
+
+      const group = document.createElement('div');
+
+      if (role === 'system') {
+        group.className = 'msg-system';
+        group.textContent = content;
+      } else if (role === 'error') {
+        group.className = 'msg-error';
+        group.textContent = content;
+      } else {
+        group.className = `msg-group ${role}`;
+        const label = document.createElement('div');
+        label.className = 'msg-label';
+        label.textContent = role === 'user' ? 'You' : 'SKOOL Advisor';
+
+        const bubble = document.createElement('div');
+        bubble.className = 'msg-bubble';
+
+        // Strip summary markers from visible text
+        let display = content;
+        const intakeIdx = display.indexOf('---INTAKE_SUMMARY---');
+        const surveyIdx = display.indexOf('---SURVEY_SUMMARY---');
+        const markerIdx = intakeIdx !== -1 ? intakeIdx : surveyIdx;
+        if (markerIdx !== -1) {
+          display = display.substring(0, markerIdx).trim();
+        }
+        bubble.textContent = display;
+
+        group.appendChild(label);
+        group.appendChild(bubble);
+      }
+
+      dom.chatMessages.appendChild(group);
+      dom.chatMessages.scrollTop = dom.chatMessages.scrollHeight;
+
+      // Update progress (estimate ~6 turns for a conversation)
+      const maxTurns = state.mode === 'intake' ? 6 : 5;
+      const pct = Math.min((state.turnCount / maxTurns) * 100, 100);
+      dom.progressFill.style.width = pct + '%';
+
+      // Check for summary
+      checkForSummary(content);
+    }
+
+    function checkForSummary(content) {
+      const markers = ['---INTAKE_SUMMARY---', '---SURVEY_SUMMARY---'];
+      for (const marker of markers) {
+        if (!content.includes(marker)) continue;
+        const jsonStr = content.substring(content.indexOf(marker) + marker.length).trim();
+        try {
+          const braceStart = jsonStr.indexOf('{');
+          const braceEnd = jsonStr.lastIndexOf('}');
+          if (braceStart !== -1 && braceEnd !== -1) {
+            state.summaryData = JSON.parse(jsonStr.substring(braceStart, braceEnd + 1));
+            // Small delay then show results
+            setTimeout(() => showResults(), 1500);
+          }
+        } catch (e) {
+          // If parsing fails, still capture what we can
+          console.warn('Could not parse summary JSON:', e);
+        }
+      }
+    }
+
+    // ---- Results ----
+    function showResults() {
+      dom.progressFill.style.width = '100%';
+
+      if (state.mode === 'intake' && state.summaryData) {
+        showIntakeResults(state.summaryData);
+      } else if (state.mode === 'survey' && state.summaryData) {
+        showSurveyResults(state.summaryData);
+      } else {
+        // Fallback generic
+        dom.resultsTitle.textContent = 'Conversation complete!';
+        dom.resultsSubtitle.textContent = "We've captured your responses. Zanda will follow up with you soon.";
+        dom.trackCard.style.display = 'none';
+        dom.profileItems.innerHTML = '';
+        dom.nextStepsItems.innerHTML = '';
+      }
+
+      showScreen('resultsScreen');
+    }
+
+    function showIntakeResults(data) {
+      // Track recommendation
+      const track = data.recommended_track || {};
+      const trackAbbr = {
+        'Foundations': 'F',
+        'Documentation Mastery': 'D',
+        'Compliance Intelligence': 'C',
+        'Training & Development': 'T',
+        'Data & Analysis': 'A',
+        'Leadership & Strategy': 'L',
+      };
+      dom.trackIcon.textContent = trackAbbr[track.primary] || track.primary?.charAt(0) || '?';
+      dom.trackName.textContent = track.primary || 'To be determined';
+      dom.trackReason.textContent = track.reasoning || '';
+      if (track.secondary) {
+        dom.trackReason.textContent += ` Also consider: ${track.secondary}.`;
+      }
+
+      // Profile
+      const items = [];
+      if (data.ai_experience?.level) items.push({ label: 'AI Experience', text: capitalize(data.ai_experience.level) });
+      if (data.pain_points?.length) items.push({ label: 'Key Challenge', text: data.pain_points[0] });
+      if (data.goals?.length) items.push({ label: 'Goal', text: data.goals[0] });
+      if (data.learning_preferences?.format_preference) items.push({ label: 'Preferred Format', text: capitalize(data.learning_preferences.format_preference.replace(/-/g, ' ')) });
+      if (data.urgency) items.push({ label: 'Urgency', text: capitalize(data.urgency) + (data.urgency_driver ? ` — ${data.urgency_driver}` : '') });
+      dom.profileItems.innerHTML = items.map(renderItem).join('');
+
+      // Next steps
+      dom.nextStepsItems.innerHTML = [
+        { label: '', text: "Zanda from MATANGA will reach out with your personalized recommendation." },
+        { label: '', text: "In the meantime, join the SKOOL community to connect with other professionals." },
+      ].map(renderItem).join('');
+    }
+
+    function showSurveyResults(data) {
+      dom.resultsTitle.textContent = 'Reflection captured!';
+      dom.resultsSubtitle.textContent = "Here's a snapshot of your progress.";
+
+      // Impact card instead of track
+      const impact = data.impact || {};
+      if (impact.confidence_before != null && impact.confidence_after != null) {
+        dom.trackIcon.textContent = `+${impact.confidence_gain || (impact.confidence_after - impact.confidence_before)}`;
+        dom.trackIcon.parentElement.querySelector('h4').textContent = 'Confidence Gain';
+        dom.trackIcon.parentElement.querySelector('p').textContent =
+          `From ${impact.confidence_before}/10 to ${impact.confidence_after}/10` +
+          (impact.estimated_time_saved_hours ? ` | ~${impact.estimated_time_saved_hours}h saved` : '');
+      } else {
+        dom.trackCard.style.display = 'none';
+      }
+
+      // Feedback
+      const items = [];
+      const fb = data.session_feedback || {};
+      if (fb.top_takeaway) items.push({ label: 'Top Takeaway', text: fb.top_takeaway });
+      if (fb.surprise_moment) items.push({ label: 'Surprise Moment', text: fb.surprise_moment });
+      const content = data.content_feedback || {};
+      if (content.wants_more_of?.length) items.push({ label: 'Wants More Of', text: content.wants_more_of.join(', ') });
+      dom.profileItems.innerHTML = items.map(renderItem).join('');
+
+      // Next steps
+      const next = data.next_steps || {};
+      const nextItems = [];
+      if (next.wants_to_tackle_next) nextItems.push({ label: '', text: next.wants_to_tackle_next });
+      nextItems.push({ label: '', text: "Your feedback helps us improve. Thank you!" });
+      dom.nextStepsItems.innerHTML = nextItems.map(renderItem).join('');
+    }
+
+    function renderItem(item) {
+      return `<div class="result-item">
+        <div class="result-item-dot"></div>
+        <p>${item.label ? `<span class="label">${item.label}</span>` : ''}${escapeHtml(item.text)}</p>
+      </div>`;
+    }
+
+    function capitalize(s) { return s ? s.charAt(0).toUpperCase() + s.slice(1) : ''; }
+    function escapeHtml(s) {
+      const d = document.createElement('div');
+      d.textContent = s;
+      return d.innerHTML;
+    }
+
+    // ---- API Communication ----
+    async function callWebhook(messages, action) {
+      const payload = {
+        mode: state.mode,
+        module: state.module || null,
+        messages: messages.filter(m => m.role === 'user' || m.role === 'assistant'),
+        timestamp: new Date().toISOString(),
+      };
+      if (action) payload.action = action;
+
+      const response = await fetch(state.webhookUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+
+      if (!response.ok) {
+        throw new Error(`Server returned ${response.status}`);
+      }
+
+      const data = await response.json();
+      return data.response || data.message || data.output || data.text || '';
+    }
+
+    // ---- Send Message ----
+    async function sendMessage() {
+      const text = dom.userInput.value.trim();
+      if (!text || state.isSending) return;
+
+      state.isSending = true;
+      setInputEnabled(false);
+      dom.userInput.value = '';
+      dom.userInput.style.height = 'auto';
+
+      addMessage('user', text);
+      showTyping(true);
+
+      try {
+        const reply = await callWebhook(state.messages);
+        if (!reply) throw new Error('Empty response from server');
+        showTyping(false);
+        addMessage('assistant', reply);
+      } catch (err) {
+        showTyping(false);
+        addMessage('error', `Connection issue: ${err.message}. Please try again.`);
+      } finally {
+        state.isSending = false;
+        setInputEnabled(true);
+      }
+    }
+
+    // ---- Start Conversation ----
+    async function startConversation() {
+      // Check webhook
+      if (!state.webhookUrl) {
+        // Try localStorage
+        const saved = JSON.parse(localStorage.getItem('skool-config') || '{}');
+        state.webhookUrl = saved.webhookUrl || '';
+      }
+      if (!state.webhookUrl) {
+        // Show admin panel for config
+        showScreen('chatScreen');
+        dom.adminPanel.classList.add('visible');
+        addMessage('system', 'Please configure the webhook URL in the admin panel above.');
+        return;
+      }
+
+      showScreen('chatScreen');
+      dom.chatMessages.innerHTML = '';
+      state.messages = [];
+      state.turnCount = 0;
+      state.summaryData = null;
+      dom.progressFill.style.width = '0%';
+
+      showTyping(true);
+      dom.chatStatus.textContent = 'Typing...';
+      dom.chatStatus.className = 'chat-status typing';
+
+      try {
+        const greeting = await callWebhook([], 'start');
+        showTyping(false);
+        dom.chatStatus.textContent = 'Online';
+        dom.chatStatus.className = 'chat-status';
+
+        if (greeting) {
+          addMessage('assistant', greeting);
+        } else {
+          addMessage('system', 'Connected. The advisor is ready.');
+        }
+        setInputEnabled(true);
+      } catch (err) {
+        showTyping(false);
+        dom.chatStatus.textContent = 'Connection failed';
+        dom.chatStatus.className = 'chat-status';
+        addMessage('error', `Could not connect: ${err.message}`);
+        addMessage('system', 'Check the webhook URL or use ?demo=true to test without a backend.');
+      }
+    }
+
+    // ---- Helpers ----
+    function setInputEnabled(enabled) {
+      dom.userInput.disabled = !enabled;
+      dom.sendBtn.disabled = !enabled;
+      if (enabled) dom.userInput.focus();
+    }
+
+    function showTyping(show) {
+      if (show) {
+        dom.typingDots.classList.remove('hidden');
+        dom.chatMessages.appendChild(dom.typingDots);
+        dom.chatMessages.scrollTop = dom.chatMessages.scrollHeight;
+        dom.chatStatus.textContent = 'Typing...';
+        dom.chatStatus.className = 'chat-status typing';
+      } else {
+        dom.typingDots.classList.add('hidden');
+        dom.chatStatus.textContent = 'Online';
+        dom.chatStatus.className = 'chat-status';
+      }
+    }
+
+    // ---- Events ----
+    dom.startBtn.addEventListener('click', startConversation);
+    dom.sendBtn.addEventListener('click', sendMessage);
+    dom.restartBtn.addEventListener('click', () => {
+      state.messages = [];
+      state.turnCount = 0;
+      state.summaryData = null;
+      showScreen('welcomeScreen');
+    });
+
+    dom.userInput.addEventListener('keydown', e => {
+      if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        sendMessage();
+      }
+    });
+
+    dom.userInput.addEventListener('input', () => {
+      dom.userInput.style.height = 'auto';
+      dom.userInput.style.height = Math.min(dom.userInput.scrollHeight, 120) + 'px';
+    });
+
+    // ---- Demo Mode ----
+    // Intercepts fetch when webhookUrl === 'demo'
+    (function initDemo() {
+      const originalFetch = window.fetch;
+
+      window.fetch = async (url, options) => {
+        if (url !== state.webhookUrl || state.webhookUrl !== 'demo') {
+          return originalFetch(url, options);
+        }
+
+        const body = JSON.parse(options.body);
+        await new Promise(r => setTimeout(r, 600 + Math.random() * 1000));
+
+        const msgCount = body.messages.length;
+
+        const intakeFlow = [
+          "Hey! Thanks for taking a few minutes to chat. I'm here to learn about you and your work so we can figure out the best way SKOOL can help.\n\nLet's start simple: what do you do for work, and what does a typical day look like?",
+          "That's really helpful context. It sounds like you've got a lot going on.\n\nHave you used any AI tools before? Things like ChatGPT, Claude, NotebookLM, Copilot — even if you just tried something once and weren't sure about it?",
+          "Got it. So here's the big question: what's the ONE thing in your work that eats up the most time or energy? The task that, if you could make it twice as fast, would change your week?",
+          "That's exactly the kind of thing where the right AI workflow makes a real difference.\n\nIf you went through a training program and came out the other side with real skills — what would success look like for you? What would be different?",
+          "Love that clarity. A couple more:\n\nHow do you prefer to learn — hands-on, watching a demo, reading, or working through it 1:1 with someone?\n\nAnd realistically, how much time per week could you put toward learning something new?",
+          "This has been great. Let me play back what I'm hearing:\n\nYou're looking for practical, hands-on training that directly applies to your work. You've got some AI exposure but want structured skill-building. And time is your scarcest resource.\n\nI'll make sure Zanda reaches out with a recommendation on which track and format fits you best. Thanks for taking the time!\n\n---INTAKE_SUMMARY---\n{\"student_profile\":{\"name\":\"Demo User\",\"role\":\"Professional\",\"industry\":\"General\",\"organization_size\":\"Unknown\"},\"ai_experience\":{\"level\":\"explorer\",\"tools_used\":[\"ChatGPT\"],\"frequency\":\"occasionally\",\"biggest_frustration\":\"Not sure how to apply it to real work\"},\"pain_points\":[\"Time-consuming documentation\",\"Manual processes\"],\"goals\":[\"Work more efficiently\",\"Apply AI to real workflows\"],\"learning_preferences\":{\"style\":\"hands-on\",\"format_preference\":\"one-on-one\",\"hours_per_week\":2},\"recommended_track\":{\"primary\":\"Foundations\",\"secondary\":\"Documentation Mastery\",\"reasoning\":\"Explorer-level AI experience with documentation-heavy workflow. Start with Foundations to build confidence, then move to Documentation Mastery for immediate ROI.\"},\"urgency\":\"medium\",\"urgency_driver\":\"Productivity improvement\",\"referral_source\":\"Unknown\",\"notes\":\"Demo mode — simulated data\"}"
+        ];
+
+        const surveyFlow = [
+          "Thanks for taking a few minutes to reflect! This helps us improve and helps me understand what's working for you.\n\nHow are you feeling about the session? Give me one word or one sentence.",
+          "That's great to hear. What's the one thing that stuck with you most? Was there a moment that surprised you or changed how you think about AI?",
+          "I love that. Now the important part — have you actually opened the tool since the session? Tried anything on your own?",
+          "That's real progress. Thinking about the session itself — was the pacing right? Anything too fast or too slow? Did the examples feel relevant to your actual work?",
+          "Really helpful. Last question: on a scale of 1-10, how confident do you feel using the tool on your own now versus before?\n\nAnd what do you want to tackle next?",
+          "You're making real progress — that confidence jump is exactly what we want to see.\n\nHere's what I'd suggest trying before your next session: pick ONE task from your actual work and run it through the tool. Don't worry about getting it perfect.\n\nThanks for reflecting!\n\n---SURVEY_SUMMARY---\n{\"session_feedback\":{\"student_name\":\"Demo User\",\"module_completed\":\"NotebookLM\",\"session_date\":\"2026-02-13\",\"overall_sentiment\":\"positive\",\"top_takeaway\":\"Mind map generation was the breakthrough moment\",\"surprise_moment\":\"Didn't expect video files to work\"},\"application\":{\"tried_homework\":true,\"tools_used_since\":[\"NotebookLM\"],\"specific_use_cases\":[{\"description\":\"Analyzed coaching notes for themes\",\"tool_used\":\"NotebookLM\",\"outcome\":\"success\",\"domain\":\"Coaching\",\"fsqa_equivalent\":\"Food safety plan audit priorities\"}],\"blockers\":[]},\"content_feedback\":{\"pacing\":\"about_right\",\"session_length\":\"about_right\",\"relevance_score\":8,\"confusing_topics\":[],\"wants_more_of\":[\"Hands-on examples with own documents\"],\"wants_less_of\":[]},\"impact\":{\"confidence_before\":3,\"confidence_after\":7,\"confidence_gain\":4,\"estimated_time_saved_hours\":2,\"workflow_changes_described\":[\"Started using NotebookLM for document review\"],\"nps_likely_to_recommend\":9},\"next_steps\":{\"wants_to_tackle_next\":\"Try with interpersonal neurobiology sources\",\"documents_to_bring\":[\"Book manuscript draft\"],\"would_recommend_to\":\"Colleagues in coaching practice\",\"additional_notes\":\"Demo mode — simulated data\"}}"
+        ];
+
+        const flow = state.mode === 'intake' ? intakeFlow : surveyFlow;
+
+        let idx;
+        if (body.action === 'start') {
+          idx = 0;
+        } else {
+          const userMsgs = body.messages.filter(m => m.role === 'user').length;
+          idx = Math.min(userMsgs, flow.length - 1);
+        }
+
+        return new Response(JSON.stringify({ response: flow[idx] }), {
+          headers: { 'Content-Type': 'application/json' },
+        });
+      };
+    })();
+  </script>
+</body>
+</html>
