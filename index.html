@@ -695,8 +695,8 @@
   <div class="screen active" id="welcomeScreen">
     <div class="welcome-card">
       <div class="welcome-logo">SKOOL by <span>MATANGA</span></div>
-      <h1 id="welcomeTitle">Tell us about yourself.</h1>
-      <p class="subtitle" id="welcomeSubtitle">A 5-minute chat with our AI assistant to understand your work, your goals, and your experience — so we can recommend exactly the right learning path for you.</p>
+      <h1 id="welcomeTitle">What are you building? Tell our AI assistant about your work, your ambitions, and the challenges you're facing. The more context you share, the better we can match you to the right learning path</h1>
+      <p class="subtitle" id="welcomeSubtitle">A 10-15 minute discovery chat with our AI assistant to understand your work, your goals, and your experience — so we can recommend exactly the right learning path for you.</p>
 
       <div class="welcome-features">
         <div class="welcome-feature">
@@ -711,7 +711,7 @@
         </div>
         <div class="welcome-feature">
           <div class="feat-icon" id="feat3Icon">&#9201;</div>
-          <h3 id="feat3Title">5 Minutes</h3>
+          <h3 id="feat3Title">&lt;15 mins</h3>
           <p id="feat3Desc">Quick, focused, and respectful of your time.</p>
         </div>
       </div>
@@ -946,7 +946,7 @@
       // Customize welcome screen for survey mode
       if (state.mode === 'survey') {
         dom.welcomeTitle.textContent = "How was your session?";
-        dom.welcomeSubtitle.textContent = "A quick reflection to capture what you learned, what clicked, and what you want to tackle next. Takes about 5 minutes.";
+        dom.welcomeSubtitle.textContent = "A quick reflection to capture what you learned, what clicked, and what you want to tackle next.";
         dom.feat1Icon.innerHTML = '&#128173;';
         dom.feat1Title.textContent = 'Reflect';
         dom.feat1Desc.textContent = 'Think about what stuck and what you tried.';
@@ -1346,7 +1346,7 @@
         const msgCount = body.messages.length;
 
         const intakeFlow = [
-          "Hey! I'm SKOOL's AI assistant. I'm here to learn about you and your work so we can figure out the best way SKOOL can help. This should take about 5 minutes — Zanda will follow up personally afterward.\n\nLet's start simple: what do you do for work, and what does a typical day look like?",
+          "Hey! I'm SKOOL's AI assistant. I'm here to learn about you and your work so we can figure out the best way SKOOL can help. This is usually a 10-15 minute discovery chat, and I'll keep it focused and respectful of your time. Zanda will follow up personally afterward.\n\nLet's start simple: what do you do for work, and what does a typical day look like?",
           "That's really helpful context. It sounds like you've got a lot going on.\n\nHave you used any AI tools before? Things like ChatGPT, Claude, NotebookLM, Copilot — even if you just tried something once and weren't sure about it?",
           "Got it. So here's the big question: what's the ONE thing in your work that eats up the most time or energy? The task that, if you could make it twice as fast, would change your week?",
           "That's exactly the kind of thing where the right AI workflow makes a real difference.\n\nIf you went through a training program and came out the other side with real skills — what would success look like for you? What would be different?",
