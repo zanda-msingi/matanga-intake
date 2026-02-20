@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>SKOOL by MATANGA — Smart Intake</title>
+  <title>Build With MATANGA — Smart Intake</title>
   <meta name="description" content="AI productivity training for professionals. Tell us about yourself so we can recommend the right learning path.">
   <style>
     :root {
@@ -679,10 +679,88 @@
 
     .btn-admin:hover { border-color: var(--primary); color: var(--primary); }
 
+    /* ===== Gateway Screen ===== */
+    #gatewayScreen {
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      background: linear-gradient(160deg, #fafafa 0%, #f0f4f8 50%, #faf6f0 100%);
+    }
+
+    .gateway-card {
+      max-width: 640px;
+      width: 100%;
+      text-align: center;
+    }
+
+    .gateway-card h1 {
+      font-size: 32px;
+      font-weight: 700;
+      line-height: 1.2;
+      color: var(--text);
+      margin-bottom: 12px;
+      letter-spacing: -0.5px;
+    }
+
+    .gateway-card .gateway-subtitle {
+      font-size: 17px;
+      line-height: 1.6;
+      color: var(--text-secondary);
+      margin-bottom: 36px;
+    }
+
+    .track-cards {
+      display: flex;
+      gap: 16px;
+      margin-bottom: 32px;
+    }
+
+    .track-card {
+      flex: 1;
+      padding: 24px 20px;
+      background: var(--surface);
+      border: 2px solid var(--border);
+      border-radius: var(--radius-lg);
+      cursor: pointer;
+      transition: all var(--transition);
+      text-align: left;
+    }
+
+    .track-card:hover {
+      border-color: var(--primary-light);
+      box-shadow: var(--shadow-md);
+      transform: translateY(-2px);
+    }
+
+    .track-card.selected {
+      border-color: var(--primary);
+      background: rgba(26, 58, 92, 0.04);
+    }
+
+    .track-card .track-emoji {
+      font-size: 28px;
+      margin-bottom: 12px;
+    }
+
+    .track-card h3 {
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 6px;
+    }
+
+    .track-card p {
+      font-size: 14px;
+      color: var(--text-secondary);
+      line-height: 1.5;
+    }
+
     /* ===== Responsive ===== */
     @media (max-width: 600px) {
       .welcome-card h1 { font-size: 26px; }
+      .gateway-card h1 { font-size: 26px; }
       .welcome-features { flex-direction: column; gap: 12px; }
+      .track-cards { flex-direction: column; gap: 12px; }
       .msg-group { max-width: 92%; }
       .chat-messages { padding: 16px; }
       .results-container { padding: 0; }
@@ -691,10 +769,39 @@
 </head>
 <body>
 
+  <!-- ===== GATEWAY SCREEN ===== -->
+  <div class="screen active" id="gatewayScreen">
+    <div class="gateway-card">
+      <div class="welcome-logo">Build With <span>MATANGA</span></div>
+      <h1>Welcome to Build With MATANGA</h1>
+      <p class="gateway-subtitle">How can we help you? Choose the path that fits your needs.</p>
+
+      <div class="track-cards">
+        <div class="track-card" data-track="academy" onclick="selectTrack('academy')">
+          <div class="track-emoji">&#127891;</div>
+          <h3>Academy</h3>
+          <p>Learn AI skills through hands-on training. Self-paced modules, cohort sessions, or 1:1 coaching.</p>
+        </div>
+        <div class="track-card" data-track="studio" onclick="selectTrack('studio')">
+          <div class="track-emoji">&#128736;</div>
+          <h3>Studio</h3>
+          <p>We build AI workflows for you. Diagnostics, implementation sprints, and ongoing support.</p>
+        </div>
+        <div class="track-card" data-track="both" onclick="selectTrack('both')">
+          <div class="track-emoji">&#9889;</div>
+          <h3>Both</h3>
+          <p>Not sure yet? Tell us about your work and we'll figure out the right mix together.</p>
+        </div>
+      </div>
+
+      <p class="welcome-note">Powered by MATANGA Research</p>
+    </div>
+  </div>
+
   <!-- ===== WELCOME SCREEN ===== -->
-  <div class="screen active" id="welcomeScreen">
+  <div class="screen" id="welcomeScreen">
     <div class="welcome-card">
-      <div class="welcome-logo">SKOOL by <span>MATANGA</span></div>
+      <div class="welcome-logo">Build With <span>MATANGA</span></div>
       <h1 id="welcomeTitle">What Are You Building?</h1>
       <p class="subtitle" id="welcomeSubtitle">A 10-15 minute discovery chat with our AI assistant to understand your work, your ambitions, and the challenges you're facing. The more context you share, the better we can match you to the right learning path</p>
 
@@ -763,9 +870,9 @@
 
     <div class="chat-header">
       <div class="chat-header-left">
-        <div class="chat-avatar">S</div>
+        <div class="chat-avatar">B</div>
         <div class="chat-header-info">
-          <h2>SKOOL Advisor <span style="font-size: 11px; font-weight: 400; color: var(--text-muted); vertical-align: middle;">AI</span></h2>
+          <h2>BWM Advisor <span style="font-size: 11px; font-weight: 400; color: var(--text-muted); vertical-align: middle;">AI</span></h2>
           <div class="chat-status" id="chatStatus">Online</div>
         </div>
       </div>
@@ -834,7 +941,7 @@
 
   <script>
     // ==================================================
-    // SKOOL Smart Intake — Production Build
+    // BWM Smart Intake — Production Build
     // ==================================================
     // Architecture: stateless backend. Browser holds all conversation state.
     // Each request sends full message history to n8n webhook.
@@ -845,6 +952,7 @@
     const state = {
       webhookUrl: '',
       mode: 'intake',
+      track: 'both',
       module: '',
       accessCode: '',
       messages: [],
@@ -902,6 +1010,7 @@
       const p = new URLSearchParams(window.location.search);
       return {
         mode: p.get('mode'),
+        track: p.get('track'),
         module: p.get('module'),
         webhook: p.get('webhook'),
         code: p.get('code'),
@@ -911,13 +1020,28 @@
     }
 
     // ---- Init ----
+    // ---- Gateway Track Selection ----
+    function selectTrack(track) {
+      state.track = track;
+      document.querySelectorAll('.track-card').forEach(c => c.classList.remove('selected'));
+      document.querySelector(`.track-card[data-track="${track}"]`).classList.add('selected');
+      // Short delay then proceed to welcome screen
+      setTimeout(() => showScreen('welcomeScreen'), 300);
+    }
+
     function init() {
       const params = getParams();
-      const saved = JSON.parse(localStorage.getItem('skool-config') || '{}');
+      const saved = JSON.parse(localStorage.getItem('bwm-config') || '{}');
 
       // Set mode
       state.mode = params.mode || saved.mode || 'intake';
       dom.modeSelect.value = state.mode;
+
+      // Set track — if provided via URL param, skip gateway
+      if (params.track) {
+        state.track = ['academy', 'studio', 'both'].includes(params.track) ? params.track : 'both';
+        showScreen('welcomeScreen');
+      }
 
       // Set module
       state.module = params.module || saved.module || '';
@@ -929,6 +1053,7 @@
       dom.webhookInput.value = state.webhookUrl;
 
       // Set access code from URL param (pre-fill and hide the field)
+      // Accept both BWM2026 and SKOOL2026 during transition window
       if (params.code) {
         state.accessCode = params.code;
         dom.accessCode.value = params.code;
@@ -942,6 +1067,11 @@
 
       // Show admin panel if requested
       if (params.admin) dom.adminPanel.classList.add('visible');
+
+      // Survey mode skips gateway — go straight to welcome
+      if (state.mode === 'survey') {
+        showScreen('welcomeScreen');
+      }
 
       // Customize welcome screen for survey mode
       if (state.mode === 'survey') {
@@ -972,7 +1102,7 @@
       state.webhookUrl = dom.webhookInput.value.trim();
       state.mode = dom.modeSelect.value;
       state.module = dom.moduleSelect.value;
-      localStorage.setItem('skool-config', JSON.stringify({
+      localStorage.setItem('bwm-config', JSON.stringify({
         webhookUrl: state.webhookUrl,
         mode: state.mode,
         module: state.module,
@@ -999,7 +1129,7 @@
         group.className = `msg-group ${role}`;
         const label = document.createElement('div');
         label.className = 'msg-label';
-        label.textContent = role === 'user' ? 'You' : 'SKOOL Advisor';
+        label.textContent = role === 'user' ? 'You' : 'BWM Advisor';
 
         const bubble = document.createElement('div');
         bubble.className = 'msg-bubble';
@@ -1100,7 +1230,7 @@
       // Next steps
       dom.nextStepsItems.innerHTML = [
         { label: '', text: "Zanda from MATANGA will reach out with your personalized recommendation." },
-        { label: '', text: "In the meantime, join the SKOOL community to connect with other professionals." },
+        { label: '', text: "In the meantime, join the Build With MATANGA community to connect with other professionals." },
       ].map(renderItem).join('');
     }
 
@@ -1155,6 +1285,7 @@
     async function callWebhook(messages, action) {
       const payload = {
         mode: state.mode,
+        track: state.track || 'both',
         module: state.module || null,
         access_code: state.accessCode || null,
         messages: messages.filter(m => m.role === 'user' || m.role === 'assistant'),
@@ -1244,7 +1375,7 @@
 
       // Check webhook
       if (!state.webhookUrl) {
-        const saved = JSON.parse(localStorage.getItem('skool-config') || '{}');
+        const saved = JSON.parse(localStorage.getItem('bwm-config') || '{}');
         state.webhookUrl = saved.webhookUrl || '';
       }
       if (!state.webhookUrl) {
@@ -1346,7 +1477,7 @@
         const msgCount = body.messages.length;
 
         const intakeFlow = [
-          "Hey! Thanks for reaching out. I'm the SKOOL Intake Advisor — an AI assistant here to help figure out if our GenAI training/build program is a good fit for you. I'm here to learn about you and your work so we can figure out the best way SKOOL can help. This is usually a 10-15 minute discovery chat, and I'll keep it focused and respectful of your time. Zanda will follow up personally afterward.\n\nLet's start simple: what do you do for work, and what does a typical day look like?",
+          "Hey! Thanks for reaching out. I'm the BWM Intake Advisor — an AI assistant here to help figure out if our GenAI training/build program is a good fit for you. I'm here to learn about you and your work so we can figure out the best way Build With MATANGA can help. This is usually a 10-15 minute discovery chat, and I'll keep it focused and respectful of your time. Zanda will follow up personally afterward.\n\nLet's start simple: what do you do for work, and what does a typical day look like?",
           "That's really helpful context. It sounds like you've got a lot going on.\n\nHave you used any AI tools before? Things like ChatGPT, Claude, NotebookLM, Copilot — even if you just tried something once and weren't sure about it?",
           "Got it. So here's the big question: what's the ONE thing in your work that eats up the most time or energy? The task that, if you could make it twice as fast, would change your week?",
           "That's exactly the kind of thing where the right AI workflow makes a real difference.\n\nIf you went through a training program and came out the other side with real skills — what would success look like for you? What would be different?",
@@ -1355,7 +1486,7 @@
         ];
 
         const surveyFlow = [
-          "Hey! I'm SKOOL's AI assistant. Thanks for taking a few minutes to reflect on your session — this helps us improve the program. Zanda will review your feedback personally.\n\nHow are you feeling about the session? Give me one word or one sentence.",
+          "Hey! I'm BWM's AI assistant. Thanks for taking a few minutes to reflect on your session — this helps us improve the program. Zanda will review your feedback personally.\n\nHow are you feeling about the session? Give me one word or one sentence.",
           "That's great to hear. What's the one thing that stuck with you most? Was there a moment that surprised you or changed how you think about AI?",
           "I love that. Now the important part — have you actually opened the tool since the session? Tried anything on your own?",
           "That's real progress. Thinking about the session itself — was the pacing right? Anything too fast or too slow? Did the examples feel relevant to your actual work?",
