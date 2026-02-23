@@ -127,6 +127,121 @@
       line-height: 1.4;
     }
 
+    .email-group {
+      max-width: 320px;
+      margin: 0 auto 24px;
+    }
+
+    .email-input {
+      width: 100%;
+      padding: 12px 16px;
+      border: 1px solid var(--border);
+      border-radius: 50px;
+      font-size: 15px;
+      font-family: inherit;
+      text-align: center;
+      color: var(--text);
+      background: var(--surface);
+      outline: none;
+      transition: border-color var(--transition);
+    }
+
+    .email-input:focus {
+      border-color: var(--primary);
+    }
+
+    .email-input::placeholder {
+      color: var(--text-muted);
+    }
+
+    .privacy-notice {
+      margin-top: 16px;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      text-align: center;
+      line-height: 1.5;
+    }
+
+    .privacy-notice a {
+      color: var(--text-secondary);
+      text-decoration: underline;
+    }
+
+    .privacy-notice a:hover {
+      color: var(--primary);
+    }
+
+    .privacy-modal-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.5);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+
+    .privacy-modal-overlay.visible {
+      display: flex;
+    }
+
+    .privacy-modal {
+      background: var(--surface);
+      border-radius: var(--radius-lg);
+      max-width: 560px;
+      width: 100%;
+      max-height: 80vh;
+      overflow-y: auto;
+      padding: 32px;
+      box-shadow: var(--shadow-lg);
+    }
+
+    .privacy-modal h2 {
+      font-size: 20px;
+      margin-bottom: 16px;
+    }
+
+    .privacy-modal p, .privacy-modal li {
+      font-size: 14px;
+      line-height: 1.6;
+      color: var(--text-secondary);
+      margin-bottom: 12px;
+    }
+
+    .privacy-modal ul {
+      padding-left: 20px;
+      margin-bottom: 12px;
+    }
+
+    .privacy-modal h3 {
+      font-size: 15px;
+      font-weight: 600;
+      margin-top: 20px;
+      margin-bottom: 8px;
+      color: var(--text);
+    }
+
+    .privacy-modal .close-btn {
+      display: inline-block;
+      margin-top: 16px;
+      padding: 10px 24px;
+      background: var(--primary);
+      color: white;
+      border: none;
+      border-radius: 50px;
+      font-size: 14px;
+      cursor: pointer;
+      transition: background var(--transition);
+    }
+
+    .privacy-modal .close-btn:hover {
+      background: var(--primary-light);
+    }
+
     .access-code-group {
       max-width: 280px;
       margin: 0 auto 24px;
@@ -836,10 +951,15 @@
         <p class="access-code-error" id="accessCodeError">Invalid access code. Check your invite email or contact Zanda.</p>
       </div>
 
+      <div class="email-group">
+        <input type="email" class="email-input" id="emailInput" placeholder="Email (optional — for follow-up)" autocomplete="email">
+      </div>
+
       <button class="btn-start" id="startBtn">
         Let's build
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
       </button>
+      <p class="privacy-notice">Your information is reviewed by the MATANGA team to prepare a personalized follow-up.<br>We don't sell or share your data. <a href="#" id="privacyLink">How we handle your data</a></p>
       <p class="welcome-note">Powered by MATANGA Research</p>
     </div>
   </div>
@@ -946,6 +1066,31 @@
     </div>
   </div>
 
+  <!-- Privacy Modal -->
+  <div class="privacy-modal-overlay" id="privacyModal">
+    <div class="privacy-modal">
+      <h2>How We Handle Your Data</h2>
+      <h3>What We Collect</h3>
+      <p>When you use the BWM Smart Intake, the AI advisor collects information you share during the conversation:</p>
+      <ul>
+        <li><strong>Name</strong> (if you choose to provide it)</li>
+        <li><strong>Email</strong> (optional, via form field)</li>
+        <li><strong>Professional details</strong> — role, industry, organization size</li>
+        <li><strong>AI experience</strong> — tools used, comfort level</li>
+        <li><strong>Goals and challenges</strong> — what you're trying to accomplish</li>
+        <li><strong>Learning preferences</strong> — format, pacing, time commitment</li>
+      </ul>
+      <h3>How We Use It</h3>
+      <p>Your information is used for one purpose: <strong>to prepare a personalized follow-up conversation with the MATANGA team.</strong></p>
+      <p>We do not sell or share your data with third parties, use it for advertising, or train AI models on your conversations.</p>
+      <h3>AI Disclosure</h3>
+      <p>The intake conversation is conducted by an AI assistant powered by Claude (Anthropic). Anthropic does not train on API inputs. See <a href="https://www.anthropic.com/privacy" target="_blank">anthropic.com/privacy</a>.</p>
+      <h3>Your Rights</h3>
+      <p>You can request a copy of your data or request deletion by emailing <strong>privacy@matangaresearch.com</strong>. You can skip any question during the intake.</p>
+      <button class="close-btn" id="closePrivacyBtn">Close</button>
+    </div>
+  </div>
+
   <script>
     // ==================================================
     // BWM Smart Intake — Production Build
@@ -962,6 +1107,7 @@
       track: 'both',
       module: '',
       accessCode: '',
+      email: '',
       messages: [],
       isSending: false,
       turnCount: 0,
@@ -987,6 +1133,10 @@
       feat3Title: $('feat3Title'),
       feat3Desc: $('feat3Desc'),
       adminPanel: $('adminPanel'),
+      emailInput: $('emailInput'),
+      privacyLink: $('privacyLink'),
+      privacyModal: $('privacyModal'),
+      closePrivacyBtn: $('closePrivacyBtn'),
       webhookInput: $('webhookInput'),
       modeSelect: $('modeSelect'),
       moduleSelect: $('moduleSelect'),
@@ -1295,6 +1445,7 @@
         track: state.track || 'both',
         module: state.module || null,
         access_code: state.accessCode || null,
+        email: state.email || '',
         messages: messages.filter(m => m.role === 'user' || m.role === 'assistant'),
         timestamp: new Date().toISOString(),
       };
@@ -1379,6 +1530,9 @@
       // Clear any previous error state
       dom.accessCode.classList.remove('error');
       dom.accessCodeError.classList.remove('visible');
+
+      // Capture optional email
+      state.email = dom.emailInput.value.trim();
 
       // Check webhook
       if (!state.webhookUrl) {
@@ -1466,6 +1620,18 @@
     dom.userInput.addEventListener('input', () => {
       dom.userInput.style.height = 'auto';
       dom.userInput.style.height = Math.min(dom.userInput.scrollHeight, 120) + 'px';
+    });
+
+    // Privacy modal
+    dom.privacyLink.addEventListener('click', (e) => {
+      e.preventDefault();
+      dom.privacyModal.classList.add('visible');
+    });
+    dom.closePrivacyBtn.addEventListener('click', () => {
+      dom.privacyModal.classList.remove('visible');
+    });
+    dom.privacyModal.addEventListener('click', (e) => {
+      if (e.target === dom.privacyModal) dom.privacyModal.classList.remove('visible');
     });
 
     // ---- Demo Mode ----
