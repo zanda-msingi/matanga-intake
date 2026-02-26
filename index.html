@@ -1204,18 +1204,17 @@
       state.module = params.module || saved.module || '';
       if (state.module) dom.moduleSelect.value = state.module;
 
-      // Set webhook
-      state.webhookUrl = params.webhook || saved.webhookUrl || '';
+      // Set webhook — hardcoded for production; override with ?webhook= or ?demo
+      const PRODUCTION_WEBHOOK = 'https://zandap.app.n8n.cloud/webhook/skool-intake';
+      state.webhookUrl = params.webhook || saved.webhookUrl || PRODUCTION_WEBHOOK;
       if (params.demo) state.webhookUrl = 'demo';
       dom.webhookInput.value = state.webhookUrl;
 
-      // Set access code from URL param (pre-fill and hide the field)
-      // Accept both BWM2026 and SKOOL2026 during transition window
-      if (params.code) {
-        state.accessCode = params.code;
-        dom.accessCode.value = params.code;
-        dom.accessCodeGroup.style.display = 'none';
-      }
+      // Set access code — hardcoded for production; override with ?code=
+      const PRODUCTION_CODE = 'BWM2026';
+      state.accessCode = params.code || PRODUCTION_CODE;
+      dom.accessCode.value = state.accessCode;
+      dom.accessCodeGroup.style.display = 'none';
 
       // Demo mode skips access code
       if (params.demo || state.webhookUrl === 'demo') {
